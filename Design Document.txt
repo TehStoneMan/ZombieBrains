@@ -1,0 +1,6 @@
+ZombieBrains
+Design Document
+
+Aim of mod:
+-----------
+

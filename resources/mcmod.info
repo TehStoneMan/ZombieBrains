@@ -1,0 +1,16 @@
+[
+{
+  "modid": "zbrains",
+  "name": "Zombie Brains",
+  "description": "Tame and train hostile mobs",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authors": ["TehStoneMan"],
+  "credits": "Created by TehStoneMan",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

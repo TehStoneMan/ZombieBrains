@@ -1,0 +1,10 @@
+//en_US Language file for Zombie Brains mod
+
+// Tiles
+tile.torchLapis.name=Lapis Torch
+
+//Items
+item.zombieBrainsSpawnEgg.name=Spawn
+
+// Entities
+entity.TameZombie.name=Tame Zombie

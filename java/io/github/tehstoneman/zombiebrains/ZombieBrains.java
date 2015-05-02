@@ -38,10 +38,10 @@ public class ZombieBrains
 	public void initialize( FMLInitializationEvent event )
 	{
 		EntityRegistry.registerModEntity( EntityTameZombie.class, "TameZombie", 0, this, 80, 1, true );
-		//final Block blockLapisTorch = new BlockLapisTorch().setHardness( 0.0F ).setLightLevel( 0.9375F ).setStepSound( Block.soundTypeWood )
-		//		.setBlockName( "torchLapis" ).setBlockTextureName( ModInfo.MODID + ":torch_lapis" );
+		final Block blockLapisTorch = new BlockLapisTorch().setHardness( 0.0F ).setLightLevel( 0.9375F ).setStepSound( Block.soundTypeWood )
+				.setBlockName( "torchLapis" ).setBlockTextureName( ModInfo.MODID + ":torch_lapis" );
 		final Item itemSpawnEgg = new ItemBrainsSpawnEgg().setUnlocalizedName( "zombieBrainsSpawnEgg" ).setTextureName( "spawn_egg" );
-		//GameRegistry.registerBlock( blockLapisTorch, "blockLapisTorch" );
+		GameRegistry.registerBlock( blockLapisTorch, "blockLapisTorch" );
 		GameRegistry.registerItem( itemSpawnEgg, "spawnEggZombieBrains" );
 	}
 

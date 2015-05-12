@@ -1,56 +1,41 @@
 package io.github.tehstoneman.zombiebrains.client.renderer;
 
+import io.github.tehstoneman.zombiebrains.ModInfo;
 import io.github.tehstoneman.zombiebrains.client.particle.EntityBlueFlameFX;
+import io.github.tehstoneman.zombiebrains.client.particle.ZombieEntityFX;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Callable;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.EntityFX;
+import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.ReportedException;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
-public class RenderParticle
+import org.lwjgl.opengl.GL11;
+
+public class ZombieParticleRenderer
 {
-	private static Minecraft		mc				= Minecraft.getMinecraft();
-	private static World			theWorld		= mc.theWorld;
-	private static TextureManager	renderEngine	= mc.getTextureManager();
+	private static Minecraft				mc					= Minecraft.getMinecraft();
 
 	/**
 	 * Spawns a particle. Arg: particleType, x, y, z, velX, velY, velZ
 	 */
-	public static void spawnParticle( String particleType, double x, double y, double z, double velX, double velY, double velZ )
+	public static EntityFX spawnParticle( String particleType, double x, double y, double z, double velX, double velY, double velZ )
 	{
-		try
+		if( mc != null && mc.renderViewEntity != null )
 		{
-			doSpawnParticle( particleType, x, y, z, velX, velY, velZ );
-		}
-		catch( final Throwable throwable )
-		{
-			final CrashReport crashreport = CrashReport.makeCrashReport( throwable, "Exception while adding particle" );
-			final CrashReportCategory crashreportcategory = crashreport.makeCategory( "Particle being added" );
-			crashreportcategory.addCrashSection( "Name", particleType );
-			crashreportcategory.addCrashSectionCallable( "Position", new Callable()
-			{
-				@Override
-				public String call()
-				{
-					return CrashReportCategory.func_85074_a( x, y, z );
-				}
-			} );
-			throw new ReportedException( crashreport );
-		}
-	}
-
-	/**
-	 * Spawns a particle. Arg: particleType, x, y, z, velX, velY, velZ
-	 */
-	public static EntityFX doSpawnParticle( String particleType, double x, double y, double z, double velX, double velY, double velZ )
-	{
-		if( mc != null && mc.renderViewEntity != null && mc.effectRenderer != null )
-		{
+			final World theWorld = mc.theWorld;
 			int particleLevel = mc.gameSettings.particleSetting;
 
 			if( particleLevel == 1 && theWorld.rand.nextInt( 3 ) == 0 )
@@ -82,5 +67,4 @@ public class RenderParticle
 		else
 			return null;
 	}
-
 }

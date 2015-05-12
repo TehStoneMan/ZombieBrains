@@ -39,14 +39,13 @@ public class EntityBlueFlameFX extends ZombieEntityFX
 	{
 		final float f6 = ( particleAge + p_70539_2_ ) / particleMaxAge;
 		particleScale = flameScale * ( 1.0F - f6 * f6 * 0.5F );
-		//Minecraft.getMinecraft().getTextureManager().bindTexture( new ResourceLocation( ModInfo.MODID + ":textures/particle/particles.png" ) );
 		super.renderParticle( p_70539_1_, p_70539_2_, p_70539_3_, p_70539_4_, p_70539_5_, p_70539_6_, p_70539_7_ );
 	}
 
 	@Override
-	public int getBrightnessForRender( float p_70070_1_ )
+	public int getBrightnessForRender( float age )
 	{
-		float f1 = ( particleAge + p_70070_1_ ) / particleMaxAge;
+		float f1 = ( particleAge + age ) / particleMaxAge;
 
 		if( f1 < 0.0F )
 			f1 = 0.0F;
@@ -54,7 +53,7 @@ public class EntityBlueFlameFX extends ZombieEntityFX
 		if( f1 > 1.0F )
 			f1 = 1.0F;
 
-		final int i = super.getBrightnessForRender( p_70070_1_ );
+		final int i = super.getBrightnessForRender( age );
 		int j = i & 255;
 		final int k = i >> 16 & 255;
 		j += (int)( f1 * 15.0F * 16.0F );
@@ -69,9 +68,9 @@ public class EntityBlueFlameFX extends ZombieEntityFX
 	 * Gets how bright this entity is.
 	 */
 	@Override
-	public float getBrightness( float p_70013_1_ )
+	public float getBrightness( float age )
 	{
-		float f1 = ( particleAge + p_70013_1_ ) / particleMaxAge;
+		float f1 = ( particleAge + age ) / particleMaxAge;
 
 		if( f1 < 0.0F )
 			f1 = 0.0F;
@@ -79,7 +78,7 @@ public class EntityBlueFlameFX extends ZombieEntityFX
 		if( f1 > 1.0F )
 			f1 = 1.0F;
 
-		final float f2 = super.getBrightness( p_70013_1_ );
+		final float f2 = super.getBrightness( age );
 		return f2 * f1 + ( 1.0F - f1 );
 	}
 
@@ -111,6 +110,6 @@ public class EntityBlueFlameFX extends ZombieEntityFX
 	@Override
 	public int getFXLayer()
 	{
-		return 3;
+		return 0;
 	}
 }

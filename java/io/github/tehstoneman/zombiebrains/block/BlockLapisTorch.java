@@ -4,17 +4,13 @@ import static net.minecraftforge.common.util.ForgeDirection.EAST;
 import static net.minecraftforge.common.util.ForgeDirection.NORTH;
 import static net.minecraftforge.common.util.ForgeDirection.SOUTH;
 import static net.minecraftforge.common.util.ForgeDirection.WEST;
-import io.github.tehstoneman.zombiebrains.client.particle.EntityBlueFlameFX;
-import io.github.tehstoneman.zombiebrains.client.particle.ZombieEntityFX;
-import io.github.tehstoneman.zombiebrains.client.particle.ZombieEffectRenderer;
-import io.github.tehstoneman.zombiebrains.client.renderer.RenderParticle;
+import io.github.tehstoneman.zombiebrains.ZombieBrains;
+import io.github.tehstoneman.zombiebrains.client.renderer.ZombieParticleRenderer;
 
 import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.EntityFX;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MovingObjectPosition;
@@ -275,45 +271,30 @@ public class BlockLapisTorch extends Block
 		if( l == 1 )
 		{
 			world.spawnParticle( "smoke", d0 - d4, d1 + d3, d2, 0.0D, 0.0D, 0.0D );
-			//RenderParticle.spawnParticle( "blueFlame", d0 - d4, d1 + d3, d2, 0.0D, 0.0D, 0.0D );
-			world.spawnParticle( "flame", d0 - d4, d1 + d3, d2, 0.0D, 0.0D, 0.0D );
-			//EntityFX particleFlame = new EntityBlueFlameFX( world, d0 - d4, d1 + d3, d2, 0.0D, 0.0D, 0.0D );
-			//Minecraft.getMinecraft().effectRenderer.addEffect( particleFlame );
+			ZombieParticleRenderer.spawnParticle( "blueFlame", d0 - d4, d1 + d3, d2, 0.0D, 0.0D, 0.0D );
 		}
 		else
 			if( l == 2 )
 			{
 				world.spawnParticle( "smoke", d0 + d4, d1 + d3, d2, 0.0D, 0.0D, 0.0D );
-				RenderParticle.spawnParticle( "blueFlame", d0 + d4, d1 + d3, d2, 0.0D, 0.0D, 0.0D );
-				//world.spawnParticle( "flame", d0 + d4, d1 + d3, d2, 0.0D, 0.0D, 0.0D );
-				//EntityFX particleFlame = new EntityBlueFlameFX( world, d0 + d4, d1 + d3, d2, 0.0D, 0.0D, 0.0D );
-				//Minecraft.getMinecraft().effectRenderer.addEffect( particleFlame );
+				ZombieParticleRenderer.spawnParticle( "blueFlame", d0 + d4, d1 + d3, d2, 0.0D, 0.0D, 0.0D );
 			}
 			else
 				if( l == 3 )
 				{
 					world.spawnParticle( "smoke", d0, d1 + d3, d2 - d4, 0.0D, 0.0D, 0.0D );
-					RenderParticle.spawnParticle( "blueFlame", d0, d1 + d3, d2 - d4, 0.0D, 0.0D, 0.0D );
-					//world.spawnParticle( "flame", d0, d1 + d3, d2 - d4, 0.0D, 0.0D, 0.0D );
-					//EntityFX particleFlame = new EntityBlueFlameFX( world, d0, d1 + d3, d2 - d4, 0.0D, 0.0D, 0.0D );
-					//Minecraft.getMinecraft().effectRenderer.addEffect( particleFlame );
+					ZombieParticleRenderer.spawnParticle( "blueFlame", d0, d1 + d3, d2 - d4, 0.0D, 0.0D, 0.0D );
 				}
 				else
 					if( l == 4 )
 					{
 						world.spawnParticle( "smoke", d0, d1 + d3, d2 + d4, 0.0D, 0.0D, 0.0D );
-						RenderParticle.spawnParticle( "blueFlame", d0, d1 + d3, d2 + d4, 0.0D, 0.0D, 0.0D );
-						//world.spawnParticle( "flame", d0, d1 + d3, d2 + d4, 0.0D, 0.0D, 0.0D );
-						//EntityFX particleFlame = new EntityBlueFlameFX( world, d0, d1 + d3, d2 + d4, 0.0D, 0.0D, 0.0D );
-						//Minecraft.getMinecraft().effectRenderer.addEffect( particleFlame );
+						ZombieParticleRenderer.spawnParticle( "blueFlame", d0, d1 + d3, d2 + d4, 0.0D, 0.0D, 0.0D );
 					}
 					else
 					{
 						world.spawnParticle( "smoke", d0, d1, d2, 0.0D, 0.0D, 0.0D );
-						RenderParticle.spawnParticle( "blueFlame", d0, d1, d2, 0.0D, 0.0D, 0.0D );
-						//world.spawnParticle( "flame", d0, d1, d2, 0.0D, 0.0D, 0.0D );
-						//EntityFX particleFlame = new EntityBlueFlameFX( world, d0, d1, d2, 0.0D, 0.0D, 0.0D );
-						//Minecraft.getMinecraft().effectRenderer.addEffect( particleFlame );
+						ZombieParticleRenderer.spawnParticle( "blueFlame", d0, d1, d2, 0.0D, 0.0D, 0.0D );
 					}
 	}
 }

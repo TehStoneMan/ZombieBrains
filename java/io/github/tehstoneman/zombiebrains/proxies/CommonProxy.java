@@ -7,5 +7,4 @@ public class CommonProxy
 	{
 		// TODO Auto-generated method stub
 	}
-
 }

@@ -4,14 +4,20 @@ import static net.minecraftforge.common.util.ForgeDirection.EAST;
 import static net.minecraftforge.common.util.ForgeDirection.NORTH;
 import static net.minecraftforge.common.util.ForgeDirection.SOUTH;
 import static net.minecraftforge.common.util.ForgeDirection.WEST;
+import io.github.tehstoneman.zombiebrains.ModInfo;
 import io.github.tehstoneman.zombiebrains.ZombieBrains;
 import io.github.tehstoneman.zombiebrains.client.renderer.ZombieParticleRenderer;
+import io.github.tehstoneman.zombiebrains.tileentity.TileEntityLapisTorch;
 
 import java.util.Random;
 
+import org.apache.logging.log4j.LogManager;
+
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
@@ -19,8 +25,10 @@ import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class BlockLapisTorch extends Block
+public class BlockLapisTorch extends BlockContainer
 {
+	public int	waypoint;	// Pointer to associated waypoint
+
 	public BlockLapisTorch()
 	{
 		super( Material.circuits );
@@ -68,14 +76,14 @@ public class BlockLapisTorch extends Block
 		return 2;
 	}
 
-	private boolean func_150107_m( World world, int p_150107_2_, int p_150107_3_, int p_150107_4_ )
+	private boolean canPlaceOn( World world, int x, int y, int z )
 	{
-		if( World.doesBlockHaveSolidTopSurface( world, p_150107_2_, p_150107_3_, p_150107_4_ ) )
+		if( World.doesBlockHaveSolidTopSurface( world, x, y, z ) )
 			return true;
 		else
 		{
-			final Block block = world.getBlock( p_150107_2_, p_150107_3_, p_150107_4_ );
-			return block.canPlaceTorchOnTop( world, p_150107_2_, p_150107_3_, p_150107_4_ );
+			final Block block = world.getBlock( x, y, z );
+			return block.canPlaceTorchOnTop( world, x, y, z );
 		}
 	}
 
@@ -86,11 +94,8 @@ public class BlockLapisTorch extends Block
 	@Override
 	public boolean canPlaceBlockAt( World world, int x, int y, int z )
 	{
-		return world.isSideSolid( x - 1, y, z, EAST, true )
-				|| world.isSideSolid( x + 1, y, z, WEST, true )
-				|| world.isSideSolid( x, y, z - 1, SOUTH, true )
-				|| world.isSideSolid( x, y, z + 1, NORTH, true )
-				|| func_150107_m( world, x, y - 1, z );
+		return world.isSideSolid( x - 1, y, z, EAST, true ) || world.isSideSolid( x + 1, y, z, WEST, true )
+				|| world.isSideSolid( x, y, z - 1, SOUTH, true ) || world.isSideSolid( x, y, z + 1, NORTH, true ) || canPlaceOn( world, x, y - 1, z );
 	}
 
 	/**
@@ -98,27 +103,24 @@ public class BlockLapisTorch extends Block
 	 * side, hitX, hitY, hitZ, block metadata
 	 */
 	@Override
-	public int onBlockPlaced( World world, int x, int y, int z, int side, float hitX,
-			float hitY, float hitZ, int meta )
+	public int onBlockPlaced( World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ, int meta )
 	{
-		int j1 = meta;
-
-		if( side == 1 && func_150107_m( world, x, y - 1, z ) )
-			j1 = 5;
+		if( side == 1 && canPlaceOn( world, x, y - 1, z ) )
+			meta = 5;
 
 		if( side == 2 && world.isSideSolid( x, y, z + 1, NORTH, true ) )
-			j1 = 4;
+			meta = 4;
 
 		if( side == 3 && world.isSideSolid( x, y, z - 1, SOUTH, true ) )
-			j1 = 3;
+			meta = 3;
 
 		if( side == 4 && world.isSideSolid( x + 1, y, z, WEST, true ) )
-			j1 = 2;
+			meta = 2;
 
 		if( side == 5 && world.isSideSolid( x - 1, y, z, EAST, true ) )
-			j1 = 1;
+			meta = 1;
 
-		return j1;
+		return meta;
 	}
 
 	/**
@@ -152,49 +154,54 @@ public class BlockLapisTorch extends Block
 						if( world.isSideSolid( x, y, z + 1, NORTH, true ) )
 							world.setBlockMetadataWithNotify( x, y, z, 4, 2 );
 						else
-							if( func_150107_m( world, x, y - 1, z ) )
+							if( canPlaceOn( world, x, y - 1, z ) )
 								world.setBlockMetadataWithNotify( x, y, z, 5, 2 );
 
-		func_150109_e( world, x, y, z );
+		if( !world.isRemote )
+		{
+			waypoint = ZombieBrains.waypointManager.addWaypoint( x, y, z );
+			//markDirty();
+		}
+
+		supportBroken( world, x, y, z );
 	}
 
 	/**
-	 * Lets the block know when one of its neighbor changes. Doesn't know which
-	 * neighbor changed (coordinates passed are their own) Args: x, y, z,
-	 * neighbor Block
+	 * Lets the block know when one of its neighbour changes. Doesn't know which
+	 * neighbour changed (coordinates passed are their own) Args: x, y, z,
+	 * neighbour Block
 	 */
 	@Override
 	public void onNeighborBlockChange( World world, int x, int y, int z, Block block )
 	{
-		func_150108_b( world, x, y, z, block );
+		blockChanged( world, x, y, z, block );
 	}
 
-	protected boolean func_150108_b( World world, int x, int y, int z, Block block )
+	protected boolean blockChanged( World world, int x, int y, int z, Block block )
 	{
-		if( func_150109_e( world, x, y, z ) )
+		if( supportBroken( world, x, y, z ) )
 		{
-			final int l = world.getBlockMetadata( x, y, z );
+			final int meta = world.getBlockMetadata( x, y, z );
 			boolean flag = false;
 
-			if( !world.isSideSolid( x - 1, y, z, EAST, true ) && l == 1 )
+			if( !world.isSideSolid( x - 1, y, z, EAST, true ) && meta == 1 )
 				flag = true;
 
-			if( !world.isSideSolid( x + 1, y, z, WEST, true ) && l == 2 )
+			if( !world.isSideSolid( x + 1, y, z, WEST, true ) && meta == 2 )
 				flag = true;
 
-			if( !world.isSideSolid( x, y, z - 1, SOUTH, true ) && l == 3 )
+			if( !world.isSideSolid( x, y, z - 1, SOUTH, true ) && meta == 3 )
 				flag = true;
 
-			if( !world.isSideSolid( x, y, z + 1, NORTH, true ) && l == 4 )
+			if( !world.isSideSolid( x, y, z + 1, NORTH, true ) && meta == 4 )
 				flag = true;
 
-			if( !func_150107_m( world, x, y - 1, z ) && l == 5 )
+			if( !canPlaceOn( world, x, y - 1, z ) && meta == 5 )
 				flag = true;
 
 			if( flag )
 			{
-				this.dropBlockAsItem( world, x, y, z,
-						world.getBlockMetadata( x, y, z ), 0 );
+				this.dropBlockAsItem( world, x, y, z, world.getBlockMetadata( x, y, z ), 0 );
 				world.setBlockToAir( x, y, z );
 				return true;
 			}
@@ -205,14 +212,13 @@ public class BlockLapisTorch extends Block
 			return true;
 	}
 
-	protected boolean func_150109_e( World world, int x, int y, int z )
+	protected boolean supportBroken( World world, int x, int y, int z )
 	{
 		if( !canPlaceBlockAt( world, x, y, z ) )
 		{
 			if( world.getBlock( x, y, z ) == this )
 			{
-				this.dropBlockAsItem( world, x, y, z,
-						world.getBlockMetadata( x, y, z ), 0 );
+				this.dropBlockAsItem( world, x, y, z, world.getBlockMetadata( x, y, z ), 0 );
 				world.setBlockToAir( x, y, z );
 			}
 
@@ -227,22 +233,21 @@ public class BlockLapisTorch extends Block
 	 * returning a ray trace hit. Args: world, x, y, z, startVec, endVec
 	 */
 	@Override
-	 public MovingObjectPosition collisionRayTrace( World world, int x, int y, int z, Vec3 start,
-			Vec3 end )
+	public MovingObjectPosition collisionRayTrace( World world, int x, int y, int z, Vec3 start, Vec3 end )
 	{
-		final int l = world.getBlockMetadata( x, y, z ) & 7;
+		final int meta = world.getBlockMetadata( x, y, z ) & 0x07;
 		float f = 0.15F;
 
-		if( l == 1 )
-			 setBlockBounds( 0.0F, 0.2F, 0.5F - f, f * 2.0F, 0.8F, 0.5F + f );
-		 else
-			if( l == 2 )
+		if( meta == 1 )
+			setBlockBounds( 0.0F, 0.2F, 0.5F - f, f * 2.0F, 0.8F, 0.5F + f );
+		else
+			if( meta == 2 )
 				setBlockBounds( 1.0F - f * 2.0F, 0.2F, 0.5F - f, 1.0F, 0.8F, 0.5F + f );
 			else
-				if( l == 3 )
+				if( meta == 3 )
 					setBlockBounds( 0.5F - f, 0.2F, 0.0F, 0.5F + f, 0.8F, f * 2.0F );
 				else
-					if( l == 4 )
+					if( meta == 4 )
 						setBlockBounds( 0.5F - f, 0.2F, 1.0F - f * 2.0F, 0.5F + f, 0.8F, 1.0F );
 					else
 					{
@@ -258,7 +263,7 @@ public class BlockLapisTorch extends Block
 	 * items for display
 	 */
 	@Override
-	 @SideOnly( Side.CLIENT )
+	@SideOnly( Side.CLIENT )
 	public void randomDisplayTick( World world, int x, int y, int z, Random rand )
 	{
 		final int l = world.getBlockMetadata( x, y, z );
@@ -296,5 +301,26 @@ public class BlockLapisTorch extends Block
 						world.spawnParticle( "smoke", d0, d1, d2, 0.0D, 0.0D, 0.0D );
 						ZombieParticleRenderer.spawnParticle( "blueFlame", d0, d1, d2, 0.0D, 0.0D, 0.0D );
 					}
+	}
+
+	@Override
+	public TileEntity createNewTileEntity( World world, int meta )
+	{
+		return new TileEntityLapisTorch( world );
+	}
+
+	@Override
+	public void breakBlock( World world, int x, int y, int z, Block block, int meta )
+	{
+		TileEntityLapisTorch tileEntity = (TileEntityLapisTorch)world.getTileEntity( x, y, z );
+
+		if( !world.isRemote && tileEntity != null )
+		{
+			int wp = ZombieBrains.waypointManager.getWaypointAt( x, y, z );
+			if( wp >= 0 )
+				ZombieBrains.waypointManager.removeWaypoint( wp );
+		}
+
+		super.breakBlock( world, x, y, z, block, meta );
 	}
 }

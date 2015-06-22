@@ -113,9 +113,6 @@ public class RenderTameZombie extends RenderBiped
 
 	protected void rotateCorpse( EntityTameZombie entity, float p_77043_2_, float p_77043_3_, float p_77043_4_ )
 	{
-		if( entity.isConverting() )
-			p_77043_3_ += (float)( Math.cos( entity.ticksExisted * 3.25D ) * Math.PI * 0.25D );
-
 		super.rotateCorpse( entity, p_77043_2_, p_77043_3_, p_77043_4_ );
 	}
 

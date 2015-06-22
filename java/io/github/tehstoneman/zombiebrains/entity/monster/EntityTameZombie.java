@@ -61,7 +61,6 @@ public class EntityTameZombie extends EntityMob
 	 * Ticker used to determine the time remaining for this zombie to convert
 	 * into a villager when cured.
 	 */
-	private int								conversionTime;
 	private boolean							field_146076_bu			= false;
 	private float							field_146074_bv			= -1.0F;
 	private float							field_146073_bw;
@@ -69,18 +68,19 @@ public class EntityTameZombie extends EntityMob
 	public EntityTameZombie( World world )
 	{
 		super( world );
-		getNavigator().setBreakDoors( true );
+		//getNavigator().setBreakDoors( true );
 		tasks.addTask( 0, new EntityAISwimming( this ) );
-		tasks.addTask( 2, new EntityAIAttackOnCollide( this, EntityPlayer.class, 1.0D, false ) );
-		tasks.addTask( 4, new EntityAIAttackOnCollide( this, EntityVillager.class, 1.0D, true ) );
-		tasks.addTask( 5, new EntityAIMoveTowardsRestriction( this, 1.0D ) );
-		tasks.addTask( 6, new EntityAIMoveThroughVillage( this, 1.0D, false ) );
+		//tasks.addTask( 5, new EntityAIMoveTowardsRestriction( this, 1.0D ) );
+		//tasks.addTask( 6, new EntityAIMoveThroughVillage( this, 1.0D, false ) );
+
+		// TODO: AI move to waypoint (Lapis Torch)
 		tasks.addTask( 7, new EntityAIWander( this, 1.0D ) );
-		tasks.addTask( 8, new EntityAIWatchClosest( this, EntityPlayer.class, 8.0F ) );
-		tasks.addTask( 8, new EntityAILookIdle( this ) );
-		targetTasks.addTask( 1, new EntityAIHurtByTarget( this, true ) );
-		targetTasks.addTask( 2, new EntityAINearestAttackableTarget( this, EntityPlayer.class, 0, true ) );
-		targetTasks.addTask( 2, new EntityAINearestAttackableTarget( this, EntityVillager.class, 0, false ) );
+
+		//tasks.addTask( 8, new EntityAIWatchClosest( this, EntityPlayer.class, 8.0F ) );
+		//tasks.addTask( 8, new EntityAILookIdle( this ) );
+		//targetTasks.addTask( 1, new EntityAIHurtByTarget( this, true ) );
+		//targetTasks.addTask( 2, new EntityAINearestAttackableTarget( this, EntityPlayer.class, 0, true ) );
+		//targetTasks.addTask( 2, new EntityAINearestAttackableTarget( this, EntityVillager.class, 0, false ) );
 		setSize( 0.6F, 1.8F );
 		
 		// Give zombie basic leather cap
@@ -284,15 +284,6 @@ public class EntityTameZombie extends EntityMob
 	@Override
 	 public void onUpdate()
 	{
-		if( !worldObj.isRemote && isConverting() )
-		{
-			final int i = getConversionTimeBoost();
-			conversionTime -= i;
-
-			if( conversionTime <= 0 )
-				 convertToVillager();
-		}
-
 		super.onUpdate();
 	}
 
@@ -409,7 +400,6 @@ public class EntityTameZombie extends EntityMob
 		if( isVillager() )
 			  p_70014_1_.setBoolean( "IsVillager", true );
 
-		p_70014_1_.setInteger( "ConversionTime", isConverting() ? conversionTime : -1 );
 		p_70014_1_.setBoolean( "CanBreakDoors", func_146072_bX() );
 	}
 
@@ -426,9 +416,6 @@ public class EntityTameZombie extends EntityMob
 
 		if( p_70037_1_.getBoolean( "IsVillager" ) )
 			  setVillager( true );
-
-		if( p_70037_1_.hasKey( "ConversionTime", 99 ) && p_70037_1_.getInteger( "ConversionTime" ) > -1 )
-			  startConversion( p_70037_1_.getInteger( "ConversionTime" ) );
 
 		func_146070_a( p_70037_1_.getBoolean( "CanBreakDoors" ) );
 	}
@@ -559,26 +546,10 @@ public class EntityTameZombie extends EntityMob
 			if( itemstack.stackSize <= 0 )
 				  p_70085_1_.inventory.setInventorySlotContents( p_70085_1_.inventory.currentItem, (ItemStack)null );
 
-			if( !worldObj.isRemote )
-				  startConversion( rand.nextInt( 2401 ) + 3600 );
-
 			return true;
 		}
 		  else
 			  return false;
-	}
-
-	/**
-	 * Starts converting this zombie into a villager. The zombie converts into a
-	 * villager after the specified time in ticks.
-	 */
-	protected void startConversion( int p_82228_1_ )
-	{
-		conversionTime = p_82228_1_;
-		getDataWatcher().updateObject( DATA_CONVERTING, Byte.valueOf( (byte)1 ) );
-		removePotionEffect( Potion.weakness.id );
-		addPotionEffect( new PotionEffect( Potion.damageBoost.id, p_82228_1_, Math.min( worldObj.difficultySetting.getDifficultyId() - 1, 0 ) ) );
-		worldObj.setEntityState( this, (byte)16 );
 	}
 
 	@Override
@@ -598,64 +569,7 @@ public class EntityTameZombie extends EntityMob
 	@Override
 	  protected boolean canDespawn()
 	{
-		return !isConverting();
-	}
-
-	/**
-	 * Returns whether this zombie is in the process of converting to a villager
-	 */
-	public boolean isConverting()
-	{
-		return getDataWatcher().getWatchableObjectByte( DATA_CONVERTING ) == 1;
-	}
-
-	/**
-	 * Convert this zombie into a villager.
-	 */
-	protected void convertToVillager()
-	{
-		final EntityVillager entityvillager = new EntityVillager( worldObj );
-		entityvillager.copyLocationAndAnglesFrom( this );
-		entityvillager.onSpawnWithEgg( (IEntityLivingData)null );
-		entityvillager.setLookingForHome();
-
-		if( isChild() )
-			  entityvillager.setGrowingAge( -24000 );
-
-		worldObj.removeEntity( this );
-		worldObj.spawnEntityInWorld( entityvillager );
-		entityvillager.addPotionEffect( new PotionEffect( Potion.confusion.id, 200, 0 ) );
-		worldObj.playAuxSFXAtEntity( (EntityPlayer)null, 1017, (int)posX, (int)posY, (int)posZ, 0 );
-	}
-
-	/**
-	 * Return the amount of time decremented from conversionTime every tick.
-	 */
-	protected int getConversionTimeBoost()
-	{
-		int i = 1;
-
-		if( rand.nextFloat() < 0.01F )
-		{
-			int j = 0;
-
-			for( int k = (int)posX - 4; k < (int)posX + 4 && j < 14; ++k )
-				  for( int l = (int)posY - 4; l < (int)posY + 4 && j < 14; ++l )
-					  for( int i1 = (int)posZ - 4; i1 < (int)posZ + 4 && j < 14; ++i1 )
-					{
-						final Block block = worldObj.getBlock( k, l, i1 );
-
-						if( block == Blocks.iron_bars || block == Blocks.bed )
-						{
-							if( rand.nextFloat() < 0.3F )
-								  ++i;
-
-							++j;
-						}
-					}
-		}
-
-		return i;
+		return false;
 	}
 
 	public void func_146071_k( boolean p_146071_1_ )
